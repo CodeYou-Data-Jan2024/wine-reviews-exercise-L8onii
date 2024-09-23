@@ -5,32 +5,26 @@ import numpy as np
 # Importing CSV
 df = pd.read_csv('data/winemag-data-130k-v2.csv.zip')
 
-# Country Count
-count_country = df.value_counts('country')
+# Country Count DF
+count_country = df.country.value_counts()
 
 # Obtaining average/mean for each 'country' within column
-average_df = df.groupby('country').agg({'points': ['count', 'mean']})
+average_df = df.groupby('country')['points'].mean()
 
 # Rounding points to 1 decimal
 average_df = average_df.round(1)
 
-# Remove Multi-Index by resetting the columns
-average_df.columns = ['count', 'points']
+# Combine DFs with "count" & "points" as columns
+wine_review = pd.DataFrame({
+        'count': count_country,
+        'points': average_df
+}).reset_index()
 
-# Resetting the index to add 'country' back as a column
-average_df = average_df.reset_index()
+# Sorts DF by "count" from highest to lowest
+wine_review = wine_review.sort_values(by='count', ascending=False)
 
-# Sort the DataFrame by 'count' in descending order
-average_df = average_df.sort_values(by='count', ascending=False)
+# Save DF "wine-review"
+wine_review.to_csv('wine_review', index=False)
 
-# Remove the index column (the old index is not shown if you display the DataFrame)
-average_df = average_df.reset_index(drop=True)
-
-# Display the final sorted DataFrame
-print(average_df)
-
-#Save file to csv
-average_df.to_csv('wine_reviews.csv',index=False)
-
-
-
+# Print DF
+print(wine_review)
